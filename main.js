@@ -97,16 +97,24 @@ function setFill(type){
 }
 
 function cellMouseDown(event){
-    if(isMouseDown && (allow_placement || autofind)){
+    
+    
+    
+    target = event.target
+    
+    if((isMouseDown || event.type=="click") && (allow_placement || autofind)){
         
-        Block.getBlockByString(event.target.id).setType(filltype)
+        var x = Block.getBlockByString(target.id).setType(filltype)
+     
         if(autofind){
             solveDijkstra()
-        }
-        
+        }   
     }
-    
 }
+
+
+
+
 function generateGrid(width, height){
     for(h=0; h<height; h++){
         newRow = tbody.insertRow();
@@ -115,6 +123,7 @@ function generateGrid(width, height){
             newCell.id = w.toString() + "-" + h.toString();
            
             newCell.addEventListener("mouseover", cellMouseDown)
+            newCell.addEventListener("click", cellMouseDown)
             new Block("empty", newCell, w, h)
         }   
     }
