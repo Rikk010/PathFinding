@@ -36,8 +36,8 @@
         margin:0;   
         border: 0.2px solid black;
     }
-    .empty2{
-        background-color: #dbe8ff;
+    .empty{
+        background-color: white;
     }
     .finish{
         background-color: purple;
@@ -46,13 +46,24 @@
         background-color: magenta;
     }
     .wall{
-        background-color: blue;
+        
+        animation: wall-in 0.4s;
+        animation-fill-mode: forwards;
+    }
+    @keyframes wall-in{
+        from{background-color: white;}
+        to {background-color: blue;}
     }
     .start{
         background-color: brown;
     }
-    .visite2d{
-        background-color: lime;
+    .visited{
+        animation: visited-in 0.1s;
+        animation-fill-mode: forwards;
+    }
+    @keyframes visited-in{
+        from{background-color: white;}
+        to {background-color: lime;}
     }
 
     #maintable{
