@@ -3,6 +3,12 @@ maintable = document.getElementById("maintable")
 tbody = document.getElementById("tbody")
 isMouseDown = false
 filltype = 'wall'
+
+solve_id = "1"
+
+
+autofind = true
+
 //var event = new CustomEvent("blockplaced");
 
 
@@ -83,7 +89,10 @@ function cellMouseDown(event){
     if(isMouseDown){
         
         Block.getBlockByString(event.target.id).setType(filltype)
-        solveDijkstra()
+        if(autofind){
+            solveDijkstra()
+        }
+        
     }
     
 }
@@ -100,6 +109,11 @@ function generateGrid(width, height){
     }
 }
 
+function toggleAutoFind(){
+    autofind = !autofind
+    Grid.clearItems("visited");
+    Grid.clearItems("finalpath");
+}
 
 
 
@@ -147,13 +161,14 @@ class Dijkstra{
         while(Dijkstra.paths.hasOwnProperty(blockstr)){
             blockstr = Dijkstra.paths[blockstr]
             var toChange = Block.getBlockByString(blockstr)
+            
             if(toChange.type != "start"){
                 toChange.setType("finalpath")
             }
             
             
         }
-        console.log(Dijkstra.paths)
+        
         
         
 
@@ -196,6 +211,8 @@ class Dijkstra{
 
 
 function solveDijkstra(){
+    solve_id += 1
+    my_solve_id = solve_id
     Dijkstra.Reset()
 
     console.log("Attempting")
@@ -203,14 +220,15 @@ function solveDijkstra(){
     Dijkstra.selected = [Grid.start]
     var iter =940;
     var i = 0;
-    while (i < iter && !Dijkstra.solved) {
+    var speed = autofind ? 0 : 50
+    while (i < iter && !Dijkstra.solved && my_solve_id == solve_id) {
         (function(i) {
         setTimeout(function() {
-            if(!Dijkstra.solved){
+            if(!Dijkstra.solved && solve_id == my_solve_id){
                 Dijkstra.SolveNext()
             }
            
-        }, 0 * i)
+        }, speed * i)
         })(i++)
     }
    
@@ -223,10 +241,10 @@ function setup(){
 
     document.addEventListener("mousedown", function(){isMouseDown = true})
     document.addEventListener("mouseup", function(){isMouseDown = false})
-    //document.addEventListener("blockplaced", solveDijkstra)
+    
     generateGrid(50,30);
     Dijkstra.selected.push(Block.getBlock(0,0));
-    //window.setInterval(solveDijkstra, 1000)
+    
     
 }
 window.addEventListener("load", function(){

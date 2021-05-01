@@ -11,6 +11,9 @@
     <button onclick="setFill('start')" class="btn btn-primary btn-sm">Start</button>
     <button onclick="setFill('finish')"  class="btn btn-primary btn-sm">Finish</button>
     <button onclick="setFill('wall')"  class="btn btn-primary btn-sm">Wall</button>
+    <button onclick="toggleAutoFind()"  class="btn btn-primary btn-sm">AutoFind</button>
+    <button onclick="solveDijkstra()"  class="btn btn-primary btn-sm">Search</button>
+    
 
     
     
@@ -43,7 +46,12 @@
         background-color: purple;
     }
     .finalpath{
-        background-color: magenta;
+        animation: final-in 0.7s;
+        animation-fill-mode: forwards;
+    }
+    @keyframes final-in{
+        from{background-color: lime;}
+        to{background-color:lightcoral;}
     }
     .wall{
         
