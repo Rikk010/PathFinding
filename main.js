@@ -3,11 +3,14 @@ maintable = document.getElementById("maintable")
 tbody = document.getElementById("tbody")
 isMouseDown = false
 filltype = 'wall'
-
+allow_placement = true
 solve_id = "1"
 
 
-autofind = true
+use_side_step = false
+
+
+autofind = false
 
 //var event = new CustomEvent("blockplaced");
 
@@ -79,14 +82,22 @@ class Grid{
     }
 
 }
-
+function ClearGrid(){
+    Grid.clearItems("visited")
+    Grid.clearItems("finalpath")
+}
+function ResetGrid(){
+    Block.GetAllBlocks().forEach(entry => entry.setType("empty"))
+    Grid.start =null;
+    Grid.finish = null;
+}
 
 function setFill(type){
     filltype= type;
 }
 
 function cellMouseDown(event){
-    if(isMouseDown){
+    if(isMouseDown && (allow_placement || autofind)){
         
         Block.getBlockByString(event.target.id).setType(filltype)
         if(autofind){
@@ -109,10 +120,16 @@ function generateGrid(width, height){
     }
 }
 
-function toggleAutoFind(){
+function toggleAutoFind(item){
     autofind = !autofind
     Grid.clearItems("visited");
     Grid.clearItems("finalpath");
+    
+    item.classList.toggle("active")
+}
+function toggleSideSteps(item){
+    use_side_step = !use_side_step
+    item.classList.toggle("active")
 }
 
 
@@ -161,18 +178,17 @@ class Dijkstra{
         while(Dijkstra.paths.hasOwnProperty(blockstr)){
             blockstr = Dijkstra.paths[blockstr]
             var toChange = Block.getBlockByString(blockstr)
-            
             if(toChange.type != "start"){
-                toChange.setType("finalpath")
+                paths.push(toChange)   
             }
-            
-            
         }
-        
-        
-        
-
-
+        paths.reverse().forEach((value,index) => this.setToFinished(value, 80*index,solve_id))
+    }
+    static setToFinished(toChange, delay, current_solve_id){
+        setTimeout(()=>{
+            if(current_solve_id == solve_id)
+                toChange.setType("finalpath")
+            }, delay)
 
     }
     
@@ -197,7 +213,16 @@ class Dijkstra{
             Block.getBlock(currentblock.x, currentblock.y + 1),
             Block.getBlock(currentblock.x, currentblock.y - 1)
         ]
-        
+        if(use_side_step){
+            
+            final_blocks = final_blocks.concat([
+                Block.getBlock(currentblock.x+1, currentblock.y + 1),
+                Block.getBlock(currentblock.x-1, currentblock.y - 1),
+                Block.getBlock(currentblock.x+1, currentblock.y - 1),
+                Block.getBlock(currentblock.x-1, currentblock.y + 1)
+            ])
+        }
+        console.log(final_blocks.length)
         var final = final_blocks.filter(function (value, index, arr){
             
             return (value != null && !["wall", "visited", "start"].includes(value.type));
@@ -211,6 +236,7 @@ class Dijkstra{
 
 
 function solveDijkstra(){
+    allow_placement = true
     solve_id += 1
     my_solve_id = solve_id
     Dijkstra.Reset()
@@ -232,7 +258,7 @@ function solveDijkstra(){
         })(i++)
     }
    
-    
+    allow_placement = true
     
 }
 
@@ -242,7 +268,7 @@ function setup(){
     document.addEventListener("mousedown", function(){isMouseDown = true})
     document.addEventListener("mouseup", function(){isMouseDown = false})
     
-    generateGrid(50,30);
+    generateGrid(50,25);
     Dijkstra.selected.push(Block.getBlock(0,0));
     
     
