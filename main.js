@@ -68,11 +68,13 @@ class Grid{
         
         Grid.start?.setType("empty")
         Grid.start = block;
+        
     }
     static setFinish(block){
         
         Grid.finish?.setType("empty")
         Grid.finish = block;
+        
     }
 
     static clearItems(toremove){
@@ -281,7 +283,8 @@ function setup(){
     
     generateGrid(35,15);
     Dijkstra.selected.push(Block.getBlock(0,0));
-    
+    Grid.setStart(Block.getBlock(3,11))
+    Grid.setFinish(Block.getBlock(19,8))
     
 }
 window.addEventListener("load", function(){

@@ -18,7 +18,7 @@
         <button onclick="setFill('wall')"  class='btn btn-outline-primar'>Wall</button>
         <button onclick="setFill('empty')"  class='btn btn-outline-primar'>Empty</button>
         <button onclick="toggleAutoFind(this)"  class="btn btn-outline-primar">AutoFind</button>
-        <button onclick="solveDijkstra()"  class="btn btn-outline-primar">Search</button>
+        <button onclick="solveDijkstra()"  class="btn btn-outline-primar btn-info">Search</button>
         <button onclick="ClearGrid()"  class="btn btn-outline-primar">Clear</button>
         <button onclick="ResetGrid()"  class="btn btn-outline-primar">Reset Grid</button>
         <button onclick="toggleSideSteps(this)"  class="btn btn-outline-primar">Toggle side step</button>
@@ -80,7 +80,9 @@
         0% {transform: scale(1);
             background-color: rgb(81, 171, 255);}
         30%{transform:scale(0.8);
-            background-color: rgb(81, 171, 255);}
+            background-color: rgb(81, 171, 255);
+            
+            }
         100% {background-color:#7a51ff; transform:scale(1)}
     }
     .wall{
@@ -101,7 +103,7 @@
     }
     @keyframes visited-in{
        0% { 
-           transform: scale(0.2);}
+           transform: scale(0.1);}
         80% {
             background-color: rgb(81, 171, 255);
             translate: scale(0.4);
