@@ -65,10 +65,12 @@ class Grid{
     static finish = null;
 
     static setStart(block){
+        
         Grid.start?.setType("empty")
         Grid.start = block;
     }
     static setFinish(block){
+        
         Grid.finish?.setType("empty")
         Grid.finish = block;
     }
@@ -277,7 +279,7 @@ function setup(){
     document.addEventListener("mousedown", function(){isMouseDown = true})
     document.addEventListener("mouseup", function(){isMouseDown = false})
     
-    generateGrid(50,25);
+    generateGrid(35,15);
     Dijkstra.selected.push(Block.getBlock(0,0));
     
     
