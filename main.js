@@ -169,7 +169,7 @@ function cellMouseDown(event){
 
     target = event.target
     
-    if((isMouseDown || event.type=="click") && (allow_placement) &&using_algorithm == "Dijkstra"){
+    if((isMouseDown || event.type=="click") && allow_placement){
         
         var x = Block.getBlockByString(target.id).setType(filltype)
      
@@ -223,7 +223,7 @@ class Dijkstra{
         
         this.selected.forEach(origin =>  {
             
-            var around = origin.getAround(["wall", "visited", "start"], true)
+            var around = origin.getAround(["wall", "visited", "start"], false)
             
             around.forEach(around_item => {
                 around_item.setParent(origin)
@@ -322,7 +322,7 @@ function solveDijkstra(){
     Dijkstra.Reset()
     var maxIterations = 100;
     var i = 0;
-    var speed = 50
+    var speed = 150
     while (i < maxIterations && !Dijkstra.solved && my_solve_id == solve_id) {
         (function(i) {
         setTimeout(function() {
