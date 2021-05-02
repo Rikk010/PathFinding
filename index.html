@@ -18,7 +18,7 @@
         <button onclick="setFill('wall')"  class='btn btn-outline-primar'>Wall</button>
         <button onclick="setFill('empty')"  class='btn btn-outline-primar'>Empty</button>
         <button onclick="toggleAutoFind(this)"  class="btn btn-outline-primar">AutoFind</button>
-        <button onclick="solveDijkstra()"  class="btn btn-outline-primar btn-info">Search</button>
+        <button onclick="solveStar()"  class="btn btn-outline-primar btn-info">Search</button>
         <button onclick="ClearGrid()"  class="btn btn-outline-primar">Clear</button>
         <button onclick="ResetGrid()"  class="btn btn-outline-primar">Reset Grid</button>
         <button onclick="toggleSideSteps(this)"  class="btn btn-outline-primar">Toggle side step</button>
@@ -37,6 +37,13 @@
     </div>
 </body>
 <style>
+    .small-text{
+        font-size: 10px;
+        
+    }
+    .closed{
+        background-color: red;
+    }
     p{
         margin: 10px;
         font-size: 1.4rem;

@@ -17,15 +17,57 @@ autofind = false
 
 class Block{
     static allBlocks = {};
-    constructor(type,element, x, y ){
+    constructor(type,element, x, y, gcost =0, hcost = 0, fcost= 0 ){
         this.type = type;
         this.element = element;
         this.x = x;
-        this.y = y;
-        
+        this.y = y;     
+        this.parent = null;  
         Block.allBlocks[x.toString() + "-" + y.toString()] = this;
         this.setType(type)
+
+        //Variables for A*
+        this.fcost = fcost
+        this.hcost = hcost
+        this.gcost = gcost
         
+    }
+    showCosts(){
+        this.element.innerHTML = `<div class="text-primary small-text"> <b>${this.fcost.toString()}</b> <u>${this.gcost.toString()}</u> <i>${this.hcost}</i></div>`;
+    }
+    hideCosts(){
+        this.element.innerHTML = ''
+    }
+
+    getAround(side_step_only){
+        var currentblock = this;
+        var final_blocks = [ ]
+        if(side_step_only){
+            
+            final_blocks = [
+                Block.getBlock(currentblock.x+1, currentblock.y + 1),
+                Block.getBlock(currentblock.x-1, currentblock.y - 1),
+                Block.getBlock(currentblock.x+1, currentblock.y - 1),
+                Block.getBlock(currentblock.x-1, currentblock.y + 1)
+            ]
+        }
+        else{
+            final_blocks = [Block.getBlock(currentblock.x + 1, currentblock.y),
+                Block.getBlock(currentblock.x - 1, currentblock.y),
+                Block.getBlock(currentblock.x, currentblock.y + 1),
+                Block.getBlock(currentblock.x, currentblock.y - 1)]
+            
+        }
+        
+        var final = final_blocks.filter(function (value, index, arr){
+            
+            return (value != null && !["wall", "start"].includes(value.type));
+        })
+        return final
+    }  
+
+    setParent(parent){
+        this.parent = parent;
     }
     niceName(){
         return this.x.toString() + "-" + this.y.toString()
@@ -128,7 +170,8 @@ function generateGrid(width, height){
            
             newCell.addEventListener("mouseover", cellMouseDown)
             newCell.addEventListener("click", cellMouseDown)
-            new Block("empty", newCell, w, h)
+            var b =new Block("empty", newCell, w, h)
+            
         }   
     }
 }
@@ -145,11 +188,22 @@ function toggleSideSteps(item){
     item.classList.toggle("active")
 }
 
+function distance(x1, y1, x2, y2) {
+    var dx = Math.abs(x2 - x1);
+    var dy = Math.abs(y2 - y1);
 
+    var min = Math.min(dx, dy);
+    var max = Math.max(dx, dy);
+
+    var diagonalSteps = min;
+    var straightSteps = max - min;
+
+    return Math.sqrt(2) * diagonalSteps + straightSteps;
+}
 
 class Dijkstra{
     static selected = []
-    static paths = {}
+  
     static new_selected = []
     static solved = false
 
@@ -163,7 +217,8 @@ class Dijkstra{
             var around = Dijkstra.getAround(origin)
             
             around.forEach(around_item => {
-                Dijkstra.paths[around_item.niceName()] = origin.niceName()
+                around_item.setParent(origin.niceName())
+               
                 if(!Dijkstra.new_selected.includes(around_item)){
                     Dijkstra.new_selected.push(around_item)
                 }
@@ -180,22 +235,26 @@ class Dijkstra{
         this.solved = false;
         this.selected = []
         this.new_selected = []
-        this.paths = []
+        
         Grid.clearItems("visited");
         Grid.clearItems("finalpath")
     }
 
     static showpath(lastblock){
         var blockstr = lastblock.niceName();
-        var paths = []
-        while(Dijkstra.paths.hasOwnProperty(blockstr)){
-            blockstr = Dijkstra.paths[blockstr]
-            var toChange = Block.getBlockByString(blockstr)
-            if(toChange.type != "start"){
-                paths.push(toChange)   
+        var finalpaths = []
+        var cur = Block.getBlockByString(blockstr)
+        while(cur.parent != null){
+            cur = Block.getBlockByString(cur.parent)
+            if (cur.type != 'start'){
+                finalpaths.push(cur)
             }
+            
+
         }
-        paths.reverse().forEach((value,index) => this.setToFinished(value, 80*index,solve_id))
+
+
+        finalpaths.reverse().forEach((value,index) => this.setToFinished(value, 80*index,solve_id))
     }
     static setToFinished(toChange, delay, current_solve_id){
         setTimeout(()=>{
@@ -243,6 +302,87 @@ class Dijkstra{
         return final
     }
 
+
+}
+function solveStar(){
+    
+    Astar.solveNext();
+}
+
+function lowestFcost(arr, closed){
+    console.log("seraching for lowest")
+    console.log(arr)
+    var lowest = arr[0]
+    
+    console.log(lowest)
+    arr.forEach((entry,index) =>{
+       console.log(entry)
+    
+        if(entry.fcost < lowest.fcost && entry.type=="visited"){
+            console.log(entry.type)
+            lowest = entry;
+            console.log("newest lowest")
+            console.log(lowest)
+        }
+    
+    })
+    console.log("lowest")
+    console.log(lowest)
+    return lowest;
+}
+class Astar{
+    static open = []
+    static closed = []
+
+    static init = false
+    
+    static solveNext(){
+        if(!this.init){
+            this.open = [Grid.start]
+            Grid.start.fcost = 100
+            this.init = true
+            console.log('ini')
+            
+        }
+        console.log("sending open")
+        console.log(this.open)
+        var bl = lowestFcost(this.open, this.closed)
+            console.log(bl)
+            //Straight movement
+            var all_around = []
+            bl.getAround(false).forEach(around => {
+                all_around.push(around)
+               
+                around.gcost = 10 + (around.parent ? around.parent.gcost : 0)
+                around.setType("visited")
+                around.hcost = Math.round(10*distance(around.x, around.y, Grid.finish.x, Grid.finish.y))
+                around.fcost = around.gcost + around.hcost
+                around.showCosts()
+                this.open.push(around)
+               
+
+            })
+            //Diagonal movement
+            bl.getAround(true).forEach(dig_around => {
+                all_around.push(dig_around)
+                
+                dig_around.gcost = 14 + (dig_around.parent ? dig_around.parent.gcost : 0)
+                dig_around.setType("visited")
+                dig_around.hcost = Math.round(10*distance(dig_around.x, dig_around.y, Grid.finish.x, Grid.finish.y))
+                dig_around.fcost = dig_around.gcost + dig_around.hcost
+                console.log(dig_around.fcost)
+                dig_around.showCosts()
+                this.open.push(dig_around)
+            })
+            
+            this.closed.push(bl.niceName())
+            
+            delete this.open[0]
+            bl.setType("closed")
+
+    }
+
+    
 
 }
 
