@@ -8,37 +8,8 @@ solve_id = "1"
 using_algorithm = "Dijkstra"
 
 
-use_side_step = false
 
 
-autofind = false
-
-//var event = new CustomEvent("blockplaced");
-function ToggleAlgorithm(elem){
-    if(using_algorithm == "Dijkstra"){
-        using_algorithm = "A*"
-        elem.innerHTML = using_algorithm
-        
-        //Changing to A*
-        var elems = document.getElementsByClassName('dijkstra-only')
-        for (let index = 0; index < elems.length; index++) {
-            const element = elems[index];
-            element.hidden = true;
-        }
-    }
-    else
-    {
-        elem.innerHTML = "Dijkstra"
-        //Changing to Dijkstra
-        Grid.clearItems("closed")
-        using_algorithm = "Dijkstra"
-        var elems = document.getElementsByClassName('dijkstra-only')
-        for (let index = 0; index < elems.length; index++) {
-            const element = elems[index];
-            element.hidden = false;
-        }
-    }
-}
 
 class Block{
     static allBlocks = {};
@@ -64,18 +35,21 @@ class Block{
         this.element.innerHTML = ''
     }
 
-    getAround(filter){
+    getAround(filter, with_diagonal){
         var currentblock = this;
         var final_blocks = [
-            Block.getBlock(currentblock.x+1, currentblock.y + 1),
-            Block.getBlock(currentblock.x-1, currentblock.y - 1),
-            Block.getBlock(currentblock.x+1, currentblock.y - 1),
-            Block.getBlock(currentblock.x-1, currentblock.y + 1),
+            
             Block.getBlock(currentblock.x + 1, currentblock.y),
             Block.getBlock(currentblock.x - 1, currentblock.y),
             Block.getBlock(currentblock.x, currentblock.y + 1),
             Block.getBlock(currentblock.x, currentblock.y - 1)
         ]
+        if(with_diagonal){
+            final_blocks = final_blocks.concat([Block.getBlock(currentblock.x+1, currentblock.y + 1),
+                Block.getBlock(currentblock.x-1, currentblock.y - 1),
+                Block.getBlock(currentblock.x+1, currentblock.y - 1),
+                Block.getBlock(currentblock.x-1, currentblock.y + 1)])
+        }
                 
         var final = final_blocks.filter(function (value, index, arr){
             
@@ -144,12 +118,33 @@ class Grid{
             }
         })
     }
+    static clearText(){
+        Block.GetAllBlocks().forEach(entry =>{
+            entry.element.innerHTML = "";
+        })
+    }
     static setToFinished(toChange, delay, current_solve_id){
         setTimeout(()=>{
             if(current_solve_id == solve_id)
                 toChange.setType("finalpath")
             }, delay)
-
+    }
+    static showFinalPath(end, inverse){
+    
+        var finalpaths = []
+        var cur = end
+        while(cur.parent != null){
+            cur = cur.parent
+            if (cur.type != 'start'){
+                finalpaths.push(cur)
+            }
+        }
+        if(inverse){
+            finalpaths.reverse().forEach((value,index) => Grid.setToFinished(value, 80*index,solve_id))
+        }
+        else{
+            finalpaths.forEach((value,index) => Grid.setToFinished(value, 80*index,solve_id))
+        }
     }
 
 }
@@ -157,11 +152,13 @@ function ClearGrid(){
     Grid.clearItems("visited")
     Grid.clearItems("finalpath")
     Grid.clearItems("closed")
+    Grid.clearText();
 }
 function ResetGrid(){
     Block.GetAllBlocks().forEach(entry => entry.setType("empty"))
     Grid.start =null;
     Grid.finish = null;
+    Grid.clearText();
 }
 
 function setFill(type){
@@ -169,24 +166,21 @@ function setFill(type){
 }
 
 function cellMouseDown(event){
-    
-    
-    
+
     target = event.target
     
-    if((isMouseDown || event.type=="click") && (allow_placement || autofind) &&using_algorithm == "Dijkstra"){
+    if((isMouseDown || event.type=="click") && (allow_placement) &&using_algorithm == "Dijkstra"){
         
         var x = Block.getBlockByString(target.id).setType(filltype)
      
-        if(autofind){
-            solveDijkstra()
-
-        }   
+           
     }
 }
 
 
-
+function ToggleAlgorithm(elem){
+   elem.innerHTML = (elem.innerHTML == "Dijkstra" ? "A*" : "Dijkstra")
+}
 
 function generateGrid(width, height){
     for(h=0; h<height; h++){
@@ -201,18 +195,6 @@ function generateGrid(width, height){
             
         }   
     }
-}
-
-function toggleAutoFind(item){
-    autofind = !autofind
-    Grid.clearItems("visited");
-    Grid.clearItems("finalpath");
-    
-    item.classList.toggle("active")
-}
-function toggleSideSteps(item){
-    use_side_step = !use_side_step
-    item.classList.toggle("active")
 }
 
 function distance(x1, y1, x2, y2) {
@@ -241,10 +223,10 @@ class Dijkstra{
         
         this.selected.forEach(origin =>  {
             
-            var around = Dijkstra.getAround(origin)
+            var around = origin.getAround(["wall", "visited", "start"], true)
             
             around.forEach(around_item => {
-                around_item.setParent(origin.niceName())
+                around_item.setParent(origin)
                
                 if(!Dijkstra.new_selected.includes(around_item)){
                     Dijkstra.new_selected.push(around_item)
@@ -267,22 +249,7 @@ class Dijkstra{
         Grid.clearItems("finalpath")
     }
 
-    static showpath(lastblock){
-        var blockstr = lastblock.niceName();
-        var finalpaths = []
-        var cur = Block.getBlockByString(blockstr)
-        while(cur.parent != null){
-            cur = Block.getBlockByString(cur.parent)
-            if (cur.type != 'start'){
-                finalpaths.push(cur)
-            }
-            
-
-        }
-
-
-        finalpaths.reverse().forEach((value,index) => Grid.setToFinished(value, 80*index,solve_id))
-    }
+    
     static setToFinished(toChange, delay, current_solve_id){
         setTimeout(()=>{
             if(current_solve_id == solve_id)
@@ -295,7 +262,7 @@ class Dijkstra{
         if(block.type == "finish"){
             this.solved = true
             
-            Dijkstra.showpath(block)
+            Grid.showFinalPath(block, true)
             return;
         }
         if(block.type != "start"){
@@ -305,24 +272,24 @@ class Dijkstra{
         
     }
 
-    static getAround(currentblock){
-        var final_blocks = [ 
-            Block.getBlock(currentblock.x + 1, currentblock.y),
-            Block.getBlock(currentblock.x - 1, currentblock.y),
-            Block.getBlock(currentblock.x, currentblock.y + 1),
-            Block.getBlock(currentblock.x, currentblock.y - 1)
-        ]
-        
-        
-        var final = final_blocks.filter(function (value, index, arr){
-            
-            return (value != null && !["wall", "visited", "start"].includes(value.type));
-        })
-        return final
-    }
-
 
 }
+
+function getPath(elem){
+    console.log(document.getElementById("algorithm-name"))
+
+    Astar.Reset()
+    Dijkstra.Reset()
+    
+
+    if(document.getElementById("algorithm-name").innerHTML == "Dijkstra"){
+        solveDijkstra()
+    }
+    else{
+        solveStar()
+    }
+}
+
 function solveStar(){
         
         Astar.Reset()
@@ -332,13 +299,12 @@ function solveStar(){
         
         var maxIterations = 100;
         var i = 0;
-        var speed = autofind ? 0 : 100
-        while (i < maxIterations && !Dijkstra.solved && my_solve_id == solve_id) {
+        var speed = 50
+        while (i < maxIterations && !Astar.solved && my_solve_id == solve_id) {
             (function(i) {
             setTimeout(function() {
                 if(!Astar.solved && solve_id == my_solve_id){
                     Astar.solveNext()
-                    
                     
                 }
                
@@ -349,32 +315,28 @@ function solveStar(){
     
    
 }
-
-
-function showFinalPath(end){
-    
-    var finalpaths = []
-    var cur = end
-    while(cur.parent != null){
-        cur = cur.parent
-        if (cur.type != 'start'){
-            finalpaths.push(cur)
-        }
+function solveDijkstra(){
+    allow_placement = false
+    solve_id += 1
+    my_solve_id = solve_id
+    Dijkstra.Reset()
+    var maxIterations = 100;
+    var i = 0;
+    var speed = 50
+    while (i < maxIterations && !Dijkstra.solved && my_solve_id == solve_id) {
+        (function(i) {
+        setTimeout(function() {
+            if(!Dijkstra.solved && solve_id == my_solve_id){
+                Dijkstra.SolveNext()
+            }
+           
+        }, speed * i)
+        })(i++)
     }
-    finalpaths.reverse().forEach((value,index) => Grid.setToFinished(value, 80*index,solve_id))
-
+    allow_placement = true
 }
 
-function lowestFcost(open){
-    var lowest = open[0]
-    open.forEach(entry =>{
-        if(entry.fcost < lowest.fcost){
-            lowest = entry;
-        }
-    })
-    return lowest
-    
-}
+
 class Astar{
     static solved = false;
     static open = []
@@ -390,20 +352,17 @@ class Astar{
     }
     static solveNext(){
         
-        
-        var current = lowestFcost(this.open)
+        var current = this.lowestFcost(this.open)
 
         this.open.splice(this.open.indexOf(current), 1)
         this.closed.push(current)
-            
         
-        
-        current.getAround(["wall", "start"]).forEach(around => {   
+        current.getAround(["wall", "start"], true).forEach(around => {   
             
 
             if(around == Grid.finish){
                 around.parent = current
-                showFinalPath(around)
+                Grid.showFinalPath(around, true)
                 this.solved =true;
                 return;
             }
@@ -413,7 +372,8 @@ class Astar{
                 return;
             }
             if(this.open.includes(around)){
-                var gcost = dist + (around.parent ? around.parent.gcost : 0)
+                
+                var gcost = dist + (current.gcost)
                 var hcost = distance(around.x, around.y, Grid.finish.x, Grid.finish.y)
                 var newfcost = gcost + hcost
                 if(around.fcost > newfcost){
@@ -421,7 +381,7 @@ class Astar{
                 }
             }
 
-            around.gcost = dist + (around.parent ? around.parent.gcost : 0)
+            around.gcost = dist + current.gcost
             around.hcost = distance(around.x, around.y, Grid.finish.x, Grid.finish.y)
             around.fcost = around.gcost + around.hcost
 
@@ -442,6 +402,15 @@ class Astar{
       
 
     }
+    static lowestFcost(open){
+        var lowest = open[0]
+        open.forEach(entry =>{
+            if(entry.fcost < lowest.fcost){
+                lowest = entry;
+            }
+        })
+        return lowest   
+    }
 
     
 
@@ -449,26 +418,7 @@ class Astar{
 
 
 
-function solveDijkstra(){
-    allow_placement = true
-    solve_id += 1
-    my_solve_id = solve_id
-    Dijkstra.Reset()
-    var maxIterations = 100;
-    var i = 0;
-    var speed = autofind ? 0 : 50
-    while (i < maxIterations && !Dijkstra.solved && my_solve_id == solve_id) {
-        (function(i) {
-        setTimeout(function() {
-            if(!Dijkstra.solved && solve_id == my_solve_id){
-                Dijkstra.SolveNext()
-            }
-           
-        }, speed * i)
-        })(i++)
-    }
-    allow_placement = true
-}
+
 
 function setup(){
    

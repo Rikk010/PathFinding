@@ -15,16 +15,16 @@
        
         
         <p class="font-weight-light">PathFinding</p>
-        <button onclick="ToggleAlgorithm(this)" class='btn btn-outline-primar btn-info width-button' >Dijkstra</button>
+        <button onclick="ToggleAlgorithm(this)" class='btn btn-outline-primar btn-info width-button' id="algorithm-name" >Dijkstra</button>
         <button onclick="setFill('start')" class="btn btn-outline-primar">Start</button>
         <button onclick="setFill('finish')"  class="btn btn-outline-primar">Finish</button>
         <button onclick="setFill('wall')"  class='btn btn-outline-primar'>Wall</button>
         <button onclick="setFill('empty')"  class='btn btn-outline-primar'>Empty</button>
-        <button onclick="toggleAutoFind(this)"  class="btn btn-outline-primar dijkstra-only">AutoFind</button>
-        <button onclick="solveStar()"  class="btn btn-outline-primar btn-info">Search</button>
+        <button onclick="toggleAutoFind(this)"  class="btn btn-outline-primar">AutoFind</button>
+        <button onclick="getPath()"  class="btn btn-outline-primar btn-info">Search</button>
         <button onclick="ClearGrid()"  class="btn btn-outline-primar">Clear</button>
         <button onclick="ResetGrid()"  class="btn btn-outline-primar">Reset Grid</button>
-        <button onclick="toggleSideSteps(this)"  class="btn btn-outline-primar dijkstra-only">Toggle side step</button>
+        <button onclick="toggleSideSteps(this)"  class="btn btn-outline-primar">Toggle side step</button>
     </div>
 
     
@@ -56,6 +56,9 @@
         font-size: 1.4rem;
         
     }
+    b,i,u{
+        color:black;
+    }
     .active{
         background-color: green;
     }
@@ -72,8 +75,8 @@
     }
  
     td{
-        width: 2vw;
-        height: 2vw;
+        width: 2.4vw;
+        height: 2.4vw;
         background-color: white;
         padding : 0;
         margin:0;   
