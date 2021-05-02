@@ -16,15 +16,15 @@
         
         <p class="font-weight-light">PathFinding</p>
         <button onclick="ToggleAlgorithm(this)" class='btn btn-outline-primar btn-info width-button' id="algorithm-name" >Dijkstra</button>
-        <button onclick="setFill('start')" class="btn btn-outline-primar">Start</button>
-        <button onclick="setFill('finish')"  class="btn btn-outline-primar">Finish</button>
+        <button onclick="setFill('start')" class="btn btn-outline-primar">StartNode</button>
+        <button onclick="setFill('finish')"  class="btn btn-outline-primar">FinishNode</button>
         <button onclick="setFill('wall')"  class='btn btn-outline-primar'>Wall</button>
         <button onclick="setFill('empty')"  class='btn btn-outline-primar'>Empty</button>
         <button onclick="toggleAutoFind(this)"  class="btn btn-outline-primar">AutoFind</button>
-        <button onclick="getPath()"  class="btn btn-outline-primar btn-info">Search</button>
+        <button onclick="getPath()"  class="btn btn-outline-primar btn-info">Find Path</button>
         <button onclick="ClearGrid()"  class="btn btn-outline-primar">Clear</button>
         <button onclick="ResetGrid()"  class="btn btn-outline-primar">Reset Grid</button>
-        <button onclick="toggleSideSteps(this)"  class="btn btn-outline-primar">Toggle side step</button>
+        
     </div>
 
     
@@ -48,7 +48,7 @@
         
     }
     .closed{
-        background-color: rgb(45, 119, 189);
+        background-color: rgb(68, 146, 219);
     }
     
     p{
@@ -86,7 +86,9 @@
         background-color: white;
     }
     .finish{
-        background-color: purple;
+        
+        background-image: url("public/finish.svg");
+        background-size: 100%;
     }
     .finalpath{
         background-color: #7a51ff;
@@ -112,7 +114,9 @@
         to {background-color: blue;}
     }
     .start{
-        background-color: brown;
+        
+        background-image: url("public/character.svg");
+        background-size: 100%;
     }
     .visited{
         animation: visited-in 1.7s;

@@ -34,7 +34,11 @@ class Block{
     hideCosts(){
         this.element.innerHTML = ''
     }
-
+    static resetParent(){
+        this.GetAllBlocks().forEach(entry => {
+            entry.parent = null;
+        })
+    }
     getAround(filter, with_diagonal){
         var currentblock = this;
         var final_blocks = [
@@ -99,15 +103,18 @@ class Grid{
     static finish = null;
 
     static setStart(block){
-        
         Grid.start?.setType("empty")
+       
         Grid.start = block;
         
     }
     static setFinish(block){
         
         Grid.finish?.setType("empty")
+        
+        
         Grid.finish = block;
+        
         
     }
 
@@ -149,12 +156,14 @@ class Grid{
 
 }
 function ClearGrid(){
+    Block.resetParent()
     Grid.clearItems("visited")
     Grid.clearItems("finalpath")
     Grid.clearItems("closed")
     Grid.clearText();
 }
 function ResetGrid(){
+    Block.resetParent()
     Block.GetAllBlocks().forEach(entry => entry.setType("empty"))
     Grid.start =null;
     Grid.finish = null;
@@ -176,12 +185,9 @@ function cellMouseDown(event){
            
     }
 }
-
-
 function ToggleAlgorithm(elem){
    elem.innerHTML = (elem.innerHTML == "Dijkstra" ? "A*" : "Dijkstra")
 }
-
 function generateGrid(width, height){
     for(h=0; h<height; h++){
         newRow = tbody.insertRow();
@@ -196,7 +202,6 @@ function generateGrid(width, height){
         }   
     }
 }
-
 function distance(x1, y1, x2, y2) {
     var dx = Math.abs(x2 - x1);
     var dy = Math.abs(y2 - y1);
@@ -216,8 +221,10 @@ class Dijkstra{
     static new_selected = []
     static solved = false
 
+    static count = 0;
     static SolveNext(){
-
+        console.log(`solving for ${this.count}`)
+        this.count ++
         Dijkstra.new_selected = []
         this.selected.forEach(entry => Dijkstra.Solve(entry))
         
@@ -276,16 +283,20 @@ class Dijkstra{
 }
 
 function getPath(elem){
-    console.log(document.getElementById("algorithm-name"))
-
+    console.log(`Getting path using ${document.getElementById("algorithm-name").innerHTML}`)
     Astar.Reset()
     Dijkstra.Reset()
+    Astar.solved = true
+    Dijkstra.solved = true
+    
     
 
     if(document.getElementById("algorithm-name").innerHTML == "Dijkstra"){
+        Dijkstra.Reset()
         solveDijkstra()
     }
     else{
+        Astar.Reset()
         solveStar()
     }
 }
@@ -297,7 +308,7 @@ function solveStar(){
         solve_id += 1
         my_solve_id = solve_id
         
-        var maxIterations = 100;
+        var maxIterations = 200;
         var i = 0;
         var speed = 50
         while (i < maxIterations && !Astar.solved && my_solve_id == solve_id) {
@@ -362,8 +373,9 @@ class Astar{
 
             if(around == Grid.finish){
                 around.parent = current
+                this.solved =true
                 Grid.showFinalPath(around, true)
-                this.solved =true;
+                
                 return;
             }
             var dist = distance(current.x, current.y, around.x, around.y)
