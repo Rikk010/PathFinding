@@ -170,7 +170,7 @@ function ClearGrid(){
 }
 function ResetGrid(){
     Block.resetParent()
-    Block.GetAllBlocks().forEach(entry => entry.setType("empty"))
+    Block.GetAllBlocks().forEach(entry => entry.setType("empty", true))
     Grid.start =null;
     Grid.finish = null;
     Grid.clearText();
