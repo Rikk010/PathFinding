@@ -347,7 +347,7 @@ function solveDijkstra(){
     solve_id += 1
     my_solve_id = solve_id
     Dijkstra.Reset()
-    var maxIterations = 100;
+    var maxIterations = 1000;
     var i = 0;
     var speed = 150
     while (i < maxIterations && !Dijkstra.solved && my_solve_id == solve_id) {
