@@ -3,7 +3,7 @@ maintable = document.getElementById("maintable")
 tbody = document.getElementById("tbody")
 isMouseDown = false
 filltype = 'wall'
-allow_placement = true
+var allow_placement = true
 solve_id = "1"
 using_algorithm = "Dijkstra"
 
@@ -74,7 +74,11 @@ class Block{
     static GetAllBlocks(){
         return Object.values(Block.allBlocks);
     }
-    setType(newtype){
+    setType(newtype, force=false){
+        
+        if(["start", "finish"].includes(this.type) && !force){
+            return;
+        }
         this.type = newtype;
         this.element.classList = []
         this.element.classList.add(newtype)
@@ -103,15 +107,14 @@ class Grid{
     static finish = null;
 
     static setStart(block){
-        Grid.start?.setType("empty")
+        Grid.start?.setType("empty", true)
         
         Grid.start = block;
-        //Grid.start.element.innerHTML = '<div class="start-point"><svg width="50" height="50" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M61.1436 8C67.302 -2.66666 82.698 -2.66667 88.8564 8L147.746 110C153.905 120.667 146.207 134 133.89 134H16.1103C3.79347 134 -3.90454 120.667 2.25387 110L61.1436 8Z" fill="#C300E2"/></svg></div>'
-       
+        
     }
     static setFinish(block){
         
-        Grid.finish?.setType("empty")
+        Grid.finish?.setType("empty", true)
         
         
         Grid.finish = block;
@@ -157,11 +160,13 @@ class Grid{
 
 }
 function ClearGrid(){
+    
     Block.resetParent()
     Grid.clearItems("visited")
     Grid.clearItems("finalpath")
     Grid.clearItems("closed")
     Grid.clearText();
+    allow_placement = true
 }
 function ResetGrid(){
     Block.resetParent()
@@ -169,6 +174,7 @@ function ResetGrid(){
     Grid.start =null;
     Grid.finish = null;
     Grid.clearText();
+    allow_placement = true
 }
 
 function setFill(type){
@@ -189,7 +195,7 @@ function cellMouseDown(event){
 }
 function ToggleAlgorithm(elem){
     elem = document.getElementById("algo-name")
-    console.log(elem)
+   
     elem.innerHTML = (elem.innerHTML == "Dijkstra" ? "A*" : "Dijkstra")
 }
 function generateGrid(width, height){
@@ -228,8 +234,14 @@ class Dijkstra{
 
     static count = 0;
     static SolveNext(){
+        allow_placement = false;
         console.log(`solving for ${this.count}`)
         this.count ++
+        if (this.new_selected.length + this.selected.length == 0){
+            this.solved = true
+            allow_placement = true
+            return;
+        }
         Dijkstra.new_selected = []
         this.selected.forEach(entry => Dijkstra.Solve(entry))
         
@@ -273,7 +285,7 @@ class Dijkstra{
     static Solve(block){
         if(block.type == "finish"){
             this.solved = true
-            
+            allow_placement = true
             Grid.showFinalPath(block, true)
             return;
         }
@@ -291,6 +303,10 @@ class Dijkstra{
 
 
 function getPath(elem){
+    if(!(Grid.start && Grid.finish)){
+        alert("You need to select a start and finish")
+        return
+    }
     var algo = document.getElementById("algo-name").innerHTML;
     console.log(`Getting path using ${algo}`)
     Astar.Reset()
@@ -378,7 +394,7 @@ class Astar{
         Grid.clearItems("finalpath")
     }
     static solveNext(){
-        
+        allow_placement = false;
         var current = this.lowestFcost(this.open)
 
         this.open.splice(this.open.indexOf(current), 1)
@@ -400,17 +416,13 @@ class Astar{
                 return;
             }
             if(this.open.includes(around)){
-                console.log("-----------")
-                console.log("Found opened item")
-                console.log(around)
-
-                console.log(`Current fcost: ${around.fcost}`)
+                
                 var gcost = dist + (current.gcost)
                 var hcost = distance(around.x, around.y, Grid.finish.x, Grid.finish.y)
                 var newfcost = gcost + hcost
-                console.log(`New fcost: ${newfcost}`)
+                
                 if(around.fcost > newfcost){
-                    console.log("overwriting")
+                    
                     around.parent = current
                 }
                 else{
@@ -448,10 +460,8 @@ class Astar{
         })
         return lowest   
     }
-
-    
-
 }
+
 
 
 
