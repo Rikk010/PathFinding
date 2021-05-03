@@ -287,6 +287,9 @@ class Dijkstra{
 
 }
 
+
+
+
 function getPath(elem){
     var algo = document.getElementById("algo-name").innerHTML;
     console.log(`Getting path using ${algo}`)
@@ -305,6 +308,13 @@ function getPath(elem){
         Astar.Reset()
         solveStar()
     }
+}
+
+function resetastar(){
+    Astar.solveNext()
+}
+function stepastar(){
+    Astar.solveNext()
 }
 
 function solveStar(){
@@ -390,12 +400,21 @@ class Astar{
                 return;
             }
             if(this.open.includes(around)){
-                
+                console.log("-----------")
+                console.log("Found opened item")
+                console.log(around)
+
+                console.log(`Current fcost: ${around.fcost}`)
                 var gcost = dist + (current.gcost)
                 var hcost = distance(around.x, around.y, Grid.finish.x, Grid.finish.y)
                 var newfcost = gcost + hcost
+                console.log(`New fcost: ${newfcost}`)
                 if(around.fcost > newfcost){
+                    console.log("overwriting")
                     around.parent = current
+                }
+                else{
+                    return;
                 }
             }
 
@@ -448,7 +467,7 @@ function setup(){
     Dijkstra.selected.push(Block.getBlock(0,0));
 
     
-    Block.getBlock(5, 9).setType("start")
+    Block.getBlock(5, 7).setType("start")
     
     Block.getBlock(34, 11).setType("finish")
     Block.getBlock(17, 6).setType("wall")
@@ -458,6 +477,7 @@ function setup(){
     Block.getBlock(17, 10).setType("wall")
     Block.getBlock(17, 11).setType("wall")
     Block.getBlock(17, 12).setType("wall")
+    Block.getBlock(17, 13).setType("wall")
 
     
 }
