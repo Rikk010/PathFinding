@@ -396,7 +396,10 @@ class Astar{
     static solveNext(){
         allow_placement = false;
         var current = this.lowestFcost(this.open)
-
+        if(current == null){
+            this.solved = true
+            allow_placement = true
+        }
         this.open.splice(this.open.indexOf(current), 1)
         this.closed.push(current)
         
@@ -406,6 +409,7 @@ class Astar{
             if(around == Grid.finish){
                 around.parent = current
                 this.solved =true
+                allow_placement = true
                 Grid.showFinalPath(around, true)
                 
                 return;
