@@ -446,8 +446,19 @@ function setup(){
     
     generateGrid(45,22);
     Dijkstra.selected.push(Block.getBlock(0,0));
-    Grid.setStart(Block.getBlock(3,11))
-    Grid.setFinish(Block.getBlock(19,8))
+
+    
+    Block.getBlock(5, 9).setType("start")
+    
+    Block.getBlock(34, 11).setType("finish")
+    Block.getBlock(17, 6).setType("wall")
+    Block.getBlock(17, 7).setType("wall")
+    Block.getBlock(17, 8).setType("wall")
+    Block.getBlock(17, 9).setType("wall")
+    Block.getBlock(17, 10).setType("wall")
+    Block.getBlock(17, 11).setType("wall")
+    Block.getBlock(17, 12).setType("wall")
+
     
 }
 window.addEventListener("load", function(){
