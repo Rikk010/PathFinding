@@ -104,9 +104,10 @@ class Grid{
 
     static setStart(block){
         Grid.start?.setType("empty")
-       
-        Grid.start = block;
         
+        Grid.start = block;
+        //Grid.start.element.innerHTML = '<div class="start-point"><svg width="50" height="50" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M61.1436 8C67.302 -2.66666 82.698 -2.66667 88.8564 8L147.746 110C153.905 120.667 146.207 134 133.89 134H16.1103C3.79347 134 -3.90454 120.667 2.25387 110L61.1436 8Z" fill="#C300E2"/></svg></div>'
+       
     }
     static setFinish(block){
         
@@ -171,6 +172,7 @@ function ResetGrid(){
 }
 
 function setFill(type){
+    console.log("Changing fill type")
     filltype= type;
 }
 
@@ -186,10 +188,13 @@ function cellMouseDown(event){
     }
 }
 function ToggleAlgorithm(elem){
-   elem.innerHTML = (elem.innerHTML == "Dijkstra" ? "A*" : "Dijkstra")
+    elem = document.getElementById("algo-name")
+    console.log(elem)
+    elem.innerHTML = (elem.innerHTML == "Dijkstra" ? "A*" : "Dijkstra")
 }
 function generateGrid(width, height){
     for(h=0; h<height; h++){
+        
         newRow = tbody.insertRow();
         for (w=0; w<width; w++){
             newCell = newRow.insertCell();
@@ -283,7 +288,8 @@ class Dijkstra{
 }
 
 function getPath(elem){
-    console.log(`Getting path using ${document.getElementById("algorithm-name").innerHTML}`)
+    var algo = document.getElementById("algo-name").innerHTML;
+    console.log(`Getting path using ${algo}`)
     Astar.Reset()
     Dijkstra.Reset()
     Astar.solved = true
@@ -291,7 +297,7 @@ function getPath(elem){
     
     
 
-    if(document.getElementById("algorithm-name").innerHTML == "Dijkstra"){
+    if(algo == "Dijkstra"){
         Dijkstra.Reset()
         solveDijkstra()
     }
@@ -308,7 +314,7 @@ function solveStar(){
         solve_id += 1
         my_solve_id = solve_id
         
-        var maxIterations = 200;
+        var maxIterations = 1000;
         var i = 0;
         var speed = 50
         while (i < maxIterations && !Astar.solved && my_solve_id == solve_id) {
@@ -438,7 +444,7 @@ function setup(){
     document.addEventListener("mousedown", function(){isMouseDown = true})
     document.addEventListener("mouseup", function(){isMouseDown = false})
     
-    generateGrid(35,15);
+    generateGrid(45,22);
     Dijkstra.selected.push(Block.getBlock(0,0));
     Grid.setStart(Block.getBlock(3,11))
     Grid.setFinish(Block.getBlock(19,8))
